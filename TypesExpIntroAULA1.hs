@@ -148,6 +148,8 @@ mor' False b = b
 mor'':: Bool -> Bool -> Bool
 mor'' a b  | a == True = True
            | otherwise = b
+		   
+
 
 --tabela verdade MNOT
 
@@ -282,6 +284,13 @@ sum_sqr'(x,y)= t1 + t2 where
    Sugestão: solveQuadrEq::(Float,Float,Float)->(Float,Float)
 -}
  
+solveQuadrEq::(Float,Float,Float) -> (Float,Float)
+solveQuadrEq(a,b,c) = ((baskara1 a b c), baskara2 a b c )
+	where
+		baskara1 a b c = (-b + delta a b c) / (2*a)
+		baskara2 a b c = (-b - delta a b c ) / (2*a)
+		delta a b c = sqrt((b*b) - (4*a*c))
+		
 
 
 
