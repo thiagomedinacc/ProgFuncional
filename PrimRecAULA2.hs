@@ -57,12 +57,18 @@ add 3 (-6) = 1 + add 2 (-6) (add02)
 
 -- Multiplicaçao sobre inteiros
 
+mult2:: Integer -> Integer -> Integer
+mult2 a b 
+    | a  == 0 || b == 0 = 0 
+    | a > 0 = a + mult2 a (b-1)
+    |otherwise = -500
+	
 multint:: Integer -> (Integer -> Integer)
 --requer m>=0
 multint m n
-  | m == 0 = 0 -- multint01
-  | m>1 = n + multint (m-1) n -- multint03
-  | m<0 = error "primeiro argumento deve ser positivo"
+    | m == 0 = 0 -- multint01
+    | m>1 = n + multint (m-1) n -- multint03
+    | m<0 = error "primeiro argumento deve ser positivo"
 
 {- Exemplo de computação
 --corrigir
@@ -133,6 +139,15 @@ msoma2 a
 -} 
 
 
+
+
+res:: Integer -> Integer -> Integer
+res a b
+	| a == 0 = b
+	| b == 0 = error "nao existe div por zero"
+    | a == b = 0
+	| b > a = a
+	| a > b = res (a-b) b 
 
 -- função resto da divisao de inteiros
 
@@ -224,3 +239,60 @@ pelo menos três chamadas  recursivas. Justicar cada igualdade (redução) da av
 - indexação de listas (!!)
 - reversão de listas
 -}
+
+mcon:: [a] -> [a] -> [a]
+mcon [] ys = ys
+mcon xs [] = xs
+mcon (x:xs) ys = x: mcon xs ys
+
+
+mtake:: [a] -> [a]
+mtake [] = []
+mtake (x:[]) = []
+mtake (x:y:ys) = x: mtake (y:ys)
+
+mdrop:: [a] -> [a]
+mdrop [] = []
+mdrop (x:[]) = []
+mdrop (x:y:ys) = (y:ys)
+
+minicial:: [a] -> Int -> [a]
+minicial [] a = []
+minicial (x:xs) 0 = [] 
+minicial (x:xs) a 
+    | length (x:xs) < a = error "index mt grande"
+    | otherwise = x: minicial xs (a-1)
+    
+    
+mindex:: [a] -> Int -> a
+mindex [] a = error "lista vazia"
+mindex (x:xs) 0 = x 
+mindex (x:xs) a 
+    | length (x:xs) <= (a) = error "index mt grande"
+    | otherwise = mindex (xs) (a-1)
+    
+    
+mreverse:: [a] -> [a]
+mreverse [] = []
+mreverse (x:[]) = [x] 
+mreverse (x:ys) = (mreverse ys) ++ [x]  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
