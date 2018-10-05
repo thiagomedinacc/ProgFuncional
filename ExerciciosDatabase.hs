@@ -4,6 +4,41 @@ module ExerciciosDatabase where
 
 {- Estudar seção 5.7 (Haskell Craft) e depois fazer
    Exercícios 5.28-5.32 -}
+   
+   
+type Person = String
+type Book = String
+
+data Loan = Loan Person Book
+
+type Database = [(Person, Book)]
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   ------------------------------------------------------------------------------------------------------------------------
 
 type Person = String
 type Book = String

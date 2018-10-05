@@ -1,6 +1,6 @@
 module ListComp where
 
-import Data.Char (chr,ord,toUpper)
+import Data.Char (chr,ord)
 {-
  Seção: Construção de Listas por Compreensão (Intenção)
  
@@ -15,6 +15,7 @@ import Data.Char (chr,ord,toUpper)
     
   
 -}
+
 
  
 
@@ -34,19 +35,10 @@ Avaliação:
 = ...
 -}
 
-
-exlist::[Integer]
 exlist = [2,4,7]
-
-lc02::[Integer]
 lc02 = [2*n | n <- exlist]
-
-
 lc03 = [even n | n <- exlist]
-
-lc04:: [Integer]
 lc04 = [2*n| n <- exlist, even n, n>3]
-
 pairList = [(2,3),(2,1),(7,8)]
 lc05 = [m+n | (m,n) <- pairList]
 addPairs xsPairs = [m+n | (m,n) <- xsPairs]
@@ -55,71 +47,93 @@ addOrdPairs xsPairs = [m+n | (m,n) <- xsPairs, m < n]
 {- 
 Define a function isDigit::Char -> Bool and then test the following definition:
 
-
-
-digits str = [ ch | ch <- str, isDigit ch]
+digits str = [ ch | ch <- str, isDigit str]
 -}
 
-digits str = [ ch | ch <- str, mIsDigit2 ch]
+digits str = [ ch | ch <- str, isDigit ch]
 
---mIsDigit::Char -> Bool
---mIsDigit = [ord c | c <- ['0'..'9']]
-
-mIsDigit2:: Char -> Bool
-mIsDigit2 c = c `elem` ['0'..'9']
+isDigit::Char -> Bool 
+isDigit a = a `elem` ['0'..'9']
 
 allEven  xs = (xs == [x | x<- xs, even x])
 
 {- Exercícios 5.18-5.26, Haskell Craft -}
 
-{- Estudar seção 5.7 (Haskell Craft) e depois fazer
-   Exercícios 5.27-5.34 -}
+doubleAll:: [Int] -> [Int]
+doubleAll x = [a*2 | a <- x]
 
+divisors:: Integer -> [Integer]
+divisors x = [a | a <- [1..x], x `mod` a == 0]
 
-exer5_18:: [Integer] -> [Integer]
-exer5_18 xs = [2*x | x <- xs] 
-
-
---capitalize
-exer5_19:: String -> String
-exer5_19 xs = [toUpper x | x <- xs] 
-
---capitalize2
---capitalize :: String -> String
---capitalize str = [chr (ord(ch) - (offset ch)) | chr <- str]
---	where
---	isLower x = ord(x) `elem` [97..122]
---	offset x = if isLower(x) then 32 else 0
-	  
-
---capitalizeLetters
-exer5_19b:: String -> String
-exer5_19b xs =[toUpper x | x <-xs, x `elem` ['a'..'z']]
-
---Divisors
-exer5_20:: Integer -> [Integer]
-exer5_20 num = [ x| x <- [1 .. num],  num `mod` x  == 0 ]  
-
--- é Primo?
 isPrime:: Integer -> Bool
-isPrime n = eprimo n
-	where
-		eprimo:: Integer -> Bool
-		eprimo n = if  length (exer5_20 n) == 2 then True else False 
+isPrime x = divisors x == [1,x]
 
-		
--- funcao matches
 matches:: Integer -> [Integer] -> [Integer]
-matches num lst = [ x | x <- lst, x == num] 	
+matches x lst = [a | a <- lst, a == x]
 
--- funcao elem
-elem1:: Integer -> [Integer] -> Bool
-elem1 num lst = estaNaLista num lst
+melem:: Integer -> [Integer] -> Bool
+melem x lst = length (matches x lst) > 0
+
+onSeparateLines:: [String] -> String
+onSeparateLines [] = ""
+onSeparateLines (x:xs) = x ++ "\n" ++ onSeparateLines xs
+
+
+duplicate:: String -> Integer -> String
+duplicate str 0 = ""
+duplicate str 1 = str
+duplicate str x = str ++ (duplicate str (x-1))
+
+{- exercício 5.19 -}
+
+capitalize:: String -> String 
+capitalize str = [chr(ord(ch) - (offset ch)) | ch <- str]
+   where 
+   	   -- deslocamento 
+   	   offset::Char -> Int
+   	   offset x = if islower x
+   	      then 32 else 0
+   	   --OU: islower x = ord(x) `elem` [97..122]
+   	   islower:: Char -> Bool 
+   	   islower x = x `elem` ['a'..'z']
+
+toUpper:: Char -> Char
+toUpper c = chr(ord(c)-32)
+
+isLower:: Char -> Bool
+isLower c = ord(c) >= 97 && ord(c) <= 122 
+
+capitalize':: String -> String
+capitalize' xs = [change x | x <- xs]
 		where
-			estaNaLista num lst = if  length (matches num lst) > 0 then True else False 
-			
+		change k = if isLower(k) then toUpper(k)
+				   else k
 
-			
+capitalizeL:: String -> String
+capitalizeL xs = [x | x <- mword, x `elem`['A'..'Z']]
+         where
+         mword = [change x | x <- xs]
+         change k = if isLower(k) then toUpper(k)
+				   else k
+
+
+
+
+
+
+
+{- Estudar seção 5.7 (Haskell Craft) e depois fazer
+   Exercícios 5.28 e 5.32 -}
+
+type Person = String
+type Book = String
+
+type Database = [(Person,Book)]    
+
+borrowed:: Database -> Book -> Bool
+borrowed dbase findbook = not(null foundBook)
+	where
+		foundBook = [book | (person,book) <- dbase, book==findbook]
 
 -- Section: Basic Logic
 
