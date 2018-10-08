@@ -96,5 +96,9 @@ joinLine [] = ""
 joinLine (x:[]) = x
 joinLine (x:xs) = x ++ ", " ++ joinLine xs
 
+joinLines:: [Line] -> String
+joinLines [] = ""
+joinLines (x:[]) = joinLine x
+joinLines (x:xs) = joinLine x ++ "\n" ++ joinLines xs
 
 
