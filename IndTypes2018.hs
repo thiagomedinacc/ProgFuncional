@@ -202,11 +202,11 @@ instance Eq a => Eq (List a) where
     _/=_ = True                         
 
 
-instance Ord a => Ord (List a) where
+--instance Ord a => Ord (List a) where
     -- implementacao (<)
-    Nil < Nil = False
-    Cons (x xs) < Nil = False
-    Nil < Cons (x xs) = True
+--    Nil < Nil = False
+--    Cons (x xs) < Nil = False
+--    Nil < Cons (x xs) = True
                             
 
 
@@ -243,15 +243,89 @@ expex = Sub (Mult (Add (L 3) (L 4)) (L 5)) (L 16)
 {-
  Instanciar Expr na classe Show
 -}
- 
+
+instance Show Expr where
+	show (L k) = show k
+	show (Add e1 e2) = "(" ++ show e1 ++ "+" ++ show e2 ++ ")"
+	show (Sub e1 e2) = "(" ++ show e1 ++ "-" ++ show e2 ++ ")"
+	show (Mult e1 e2) = "(" ++ show e1 ++ "*" ++ show e2 ++ ")"
+
 {- 
   Definir uma função recursiva eval::Exp -> Int 
 -}
 
+eval:: Expr -> Int
+eval (L k) = k
+eval (Add e1 e2) = (eval e1) + (eval e2)
+eval (Sub e1 e2) =  (eval e1) - (eval e2)
+eval (Mult e1 e2) = (eval e1) * (eval e2)
+
+
+
 {-
 Estender  o tipo recursivo VExpr de forma que seja possível incluir variáveis nas expressões. 
 -}
- 
+
+data VExpr = V String| C Int | VSub VExpr VExpr | 
+            VMult VExpr VExpr |
+            VAdd VExpr VExpr 
+
+
+vexpex = VMult (V "x") (VMult (VAdd (V "x") (V "y")) (C 15 )) 
+
+instance Show VExpr where
+	show (C k) = show k
+ 	show (V k) = k
+	show (VAdd e1 e2) = "(" ++ show e1 ++ "+" ++ show e2 ++ ")"
+	show (VSub e1 e2) = "(" ++ show e1 ++ "-" ++ show e2 ++ ")"
+	show (VMult e1 e2) = "(" ++ show e1 ++ "*" ++ show e2 ++ ")"
+
+
+type Store = String -> Int
+
+stoExemplo::Store
+stoExemplo "x" = 10
+stoExemplo "y" = -5
+stoExemplo "z" = 2
+stoExemplo _ = 0
+
+vEval:: VExpr -> Store -> Int
+vEval (C k) store = k
+vEval (V k) store = store k
+vEval (VSub e1 e2) store = (vEval e1 store) - (vEval e2 store)
+vEval (VAdd e1 e2) store = (vEval e1 store) + (vEval e2 store)
+vEval (VMult e1 e2) store = (vEval e1 store) * (vEval e2 store)
+
+
+
+data NExp = K Int | NExp :+: NExp |
+		NExp :-: NExp | NExp :*: NExp deriving (Show, Eq, Ord)
+
+nEval:: NExp -> Int
+nEval (K n) = n
+nEval (e1 :+: e2) =  (nEval e1) + (nEval e2) 
+nEval (e1 :-: e2) =  (nEval e1) - (nEval e2)
+nEval (e1 :*: e2) =  (nEval e1) * (nEval e2)
+
+
+--  (3+4)*5 - 16
+newExpEx = (((K 3) :+: (K 4)) :*: (K 5)) :-: (K 16)
+
+
+data VNExp = X Int | A String | VNExp :++: VNExp |
+		VNExp :--: VNExp | VNExp :**: VNExp deriving (Show, Eq, Ord)
+
+vnEval:: VNExp -> Store -> Int
+vnEval (X k) store = k
+vnEval (A k) store = store k
+vnEval (e1 :--: e2) store = (vnEval e1 store) - (vnEval e2 store)
+vnEval (e1 :++: e2) store = (vnEval e1 store) + (vnEval e2 store)
+vnEval (e1 :**: e2) store = (vnEval e1 store) * (vnEval e2 store)
+
+--  (3+4)*5 - 16
+newExpEx2 = (((A "x") :++: (X 4)) :**: (X 5)) :--: (X 16)
+
+
 {-
  Definir agora a nova função de avaliação sobre VExpr. Qual o novo parâmetro (tipo) que é necessário?
 -}
