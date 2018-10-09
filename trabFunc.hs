@@ -2,6 +2,8 @@ module TrabFunc where
 
 import Data.Char (ord,chr,toLower)
 import Data.List (elemIndex)
+import Data.Sequence (update,fromList)
+import Data.Foldable (toList)
 
 
 -- The `whitespace' characters.
@@ -191,21 +193,21 @@ stringParaLowCase:: String -> String
 stringParaLowCase str = map toLower str   
 
 --Exercicio 7.34
-
 subst:: String -> String -> String -> String
 subst oldSub newSub str 
      | oldSubExiste oldSub (splitWords str) = substitui  newSub (splitWords str) (elemIndex oldSub (splitWords str))
+     | otherwise = str
                 where 
-                    substitui newSub lstStr pos = 
-                        case pos of 
-                            Just n -> let (x,_:ys) = splitAt n- lstStr
-                                in transformaEmString((x ++ [newSub] ++ ys))
-                                    where
-                                        transformaEmString [] = ""
-                                        transformaEmString (x:[]) = x
-                                        transformaEmString (x:xs) = x ++ " " ++ transformaEmString xs
-                   
+                   substitui newSub lstStr pos = 
+                       case pos of 
+                            Just n ->  deListaParaString(toList(update n newSub (fromList lstStr)))
 
+                   
+deListaParaString:: [String] -> String
+deListaParaString [] = ""
+deListaParaString (x:[]) = x
+deListaParaString (x:xs) = x ++ " " ++ deListaParaString xs
+   
 
 oldSubExiste:: String -> [Mword] -> Bool
 oldSubExiste str lst = str `elem` lst 
