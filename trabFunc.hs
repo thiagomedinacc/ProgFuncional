@@ -1,5 +1,6 @@
 module TrabFunc where 
 
+import Data.Char (ord,chr,toLower)
 
 -- The `whitespace' characters.
 
@@ -80,6 +81,53 @@ fill :: String -> [Line]
 fill = splitLines . splitWords
 
 
+--Exercicio 7.27
+
+dropLine:: Int -> [Mword] -> Line
+dropLine len [] = []
+dropLine len (x:xs) 
+    | length x > len = (x:xs)
+    | length x == len = (xs)
+    | otherwise = dropLine lenAtualizado xs
+        where
+            lenAtualizado = len - (length (x) + 1)
+            
+
+--Exercicio 7.28            
+            
+joinLine:: Line -> String
+joinLine [] = ""
+joinLine (x:[]) = x
+joinLine (x:xs) = x ++ ", " ++ joinLine xs
+
+--Exercicio 7.29
+
+joinLines:: [Line] -> String
+joinLines [] = ""
+joinLines (x:[]) = joinLine x
+joinLines (x:xs) = joinLine x ++ "\n" ++ joinLines xs
+
+--Exercicio 7.30
+{-
+
+-- Get a word from the front of a string.
+
+getWord :: String -> String
+getWord []    = [] 
+getWord (x:xs) 
+  | elem x whitespace   = []
+  | otherwise           = x : getWord xs
+
+
+-- In a similar way, the first word of a string can be dropped.
+
+dropWord :: String -> String
+dropWord []    = []
+dropWord (x:xs) 
+  | elem x whitespace   = (x:xs)
+  | otherwise           = dropWord xs
+  
+
 dropLine:: Int -> [Mword] -> Line
 dropLine len [] = []
 dropLine len (x:xs) 
@@ -90,15 +138,48 @@ dropLine len (x:xs)
             lenAtualizado = len - (length (x) + 1)
             
             
-            
-joinLine:: Line -> String
-joinLine [] = ""
-joinLine (x:[]) = x
-joinLine (x:xs) = x ++ ", " ++ joinLine xs
+-}
 
-joinLines:: [Line] -> String
-joinLines [] = ""
-joinLines (x:[]) = joinLine x
-joinLines (x:xs) = joinLine x ++ "\n" ++ joinLines xs
+-- Exercicio 7.31
 
+--joinLine2:: Line -> String
 
+-- Exercicio 7.32
+
+wc:: String -> (Int,Int,Int)
+--requer x \= ""
+wc x = processamento x (a,b,c)
+        where
+            a=0
+            b=0
+            c=0
+            processamento x (a,b,c)
+                | length x == 0 = (a,b+1,c+1)
+                |  ord (head x)  > 32 && ord (head x) < 127 =  processamento   (tail x) (a+1,b,c)
+                |  ord (head x) == 32 = processamento (tail x) (a,b+1,c)
+                | head x == '\n' = processamento (tail x) (a,b+1,c+1)
+                
+wcFormat::String -> (Int,Int,Int)
+wcFormat x = wc (joinLines(fill x))
+
+--Exercicio 7.33
+
+isPalin:: String -> Bool
+isPalin "" = True
+isPalin [_] = True
+isPalin str = processa str
+            where
+                processa str = verifica(ignoraNaoLetras(stringParaLowCase str))
+                verifica y = (head y == last y) && isPalin (init ( tail y))
+                    
+              
+   
+ignoraNaoLetras:: String -> String
+ignoraNaoLetras str =  filter (`elem` ['a'..'z']) str
+                            
+    
+stringParaLowCase:: String -> String   
+stringParaLowCase str = map toLower str   
+    
+    
+    
