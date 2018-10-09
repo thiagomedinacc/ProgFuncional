@@ -51,8 +51,7 @@ split st
 
 -- Splitting into lines of length at most lineLen
 
-lineLen :: Int
-lineLen = 80
+
 
 -- A line is a list of words.
 
@@ -144,14 +143,29 @@ dropLine len (x:xs)
             
 -}
 
--- Exercicio 7.31
-
---joinLine2:: Line -> String
+-- Exercicio 7.31                
+lineLen :: Int
+lineLen = 15
+                
+ 
+joinLine3:: Line -> String
+joinLine3 [] = ""
+joinLine3 linha = just linha
+        where
+            just (x:[]) = x 
+            just (x:xs) = x ++  "S" ++ colocaEspacos nroEspacos ++ just xs
+            colocaEspacos 0 = ""
+            colocaEspacos 1 = "S"
+            colocaEspacos n = "S" ++ colocaEspacos (n-1)
+            nroEspacos 
+                | verificaDisponibilidade >= 0 = verificaDisponibilidade
+                | otherwise =  error "String muito grande para a linha"                                                                                                     
+            verificaDisponibilidade = ((lineLen) - (length(deListaParaString linha))) `div` ((length linha) - 1)
 
 -- Exercicio 7.32
 
 wc:: String -> (Int,Int,Int)
---requer x \= ""
+wc "" = (0,0,0)
 wc x = processamento x (a,b,c)
         where
             a=0
