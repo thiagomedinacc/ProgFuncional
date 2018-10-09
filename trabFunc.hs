@@ -173,6 +173,13 @@ isPalin str = processa str
                 verifica y = (head y == last y) && isPalin (init ( tail y))
                     
               
+isPalin2:: String -> Bool
+isPalin2 "" = True
+isPalin2 [_] = True
+isPalin2 str = processa str == reverse (processa str)
+            where
+                processa str = ignoraNaoLetras(stringParaLowCase str)
+                
    
 ignoraNaoLetras:: String -> String
 ignoraNaoLetras str =  filter (`elem` ['a'..'z']) str
