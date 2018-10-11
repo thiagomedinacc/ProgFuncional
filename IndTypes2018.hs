@@ -335,20 +335,59 @@ newExpEx2 = (((A "x") :++: (X 4)) :**: (X 5)) :--: (X 16)
   Árvores Binárias (Recursivamente)
 -}
 data BArv a = Leaf  | Br a (BArv a) (BArv a)
-
+    deriving (Show,Eq,Ord)
 data BTree a = Node a| Fork a (BTree a) (BTree a) | Empty
-
+    deriving (Show,Eq,Ord)
 tree01= Br 1 (Br 2 Leaf Leaf) (Br 3 Leaf Leaf) 
 tree02= Fork 1 (Node 2)  (Node 3)
+tree04 = Br 1 ( Br 2 (Br 4 Leaf Leaf) Leaf) (Br 3 Leaf Leaf)
 
-{-
 
-Exercícios
-- Instanciar BArv, BTree nas classes Show, Eq, Ord.
-- Escrever funções de conversão entre BArv e BTree.
-- Escrever as funções de caminhamento usuais sobre os
- dois tipo de árvores binárias: inorder, preorder e postorder.
--}
+
+--Exercícios
+-- Instanciar BArv, BTree nas classes Show, Eq, Ord.
+
+--instance Show a => Show (BTree a)  where
+--    show Empty = " "
+--    show (Node a) = show a
+    --show (Fork a (ar1) (ar2)) = show (a ++ ar1)
+
+
+
+
+--Escrever funções de conversão entre BArv e BTree.
+
+convert1:: BArv a -> BTree a
+convert1 Leaf = Empty
+convert1 (Br x Leaf Leaf) = Node x
+convert1 (Br x arv1 arv2) = Fork x (convert1 arv1) (convert1 arv2)
+
+convert2::BTree a -> BArv a
+convert2 Empty = Leaf
+-- FAZER
+-- FAZER
+
+
+--Escrever as funções de caminhamento usuais sobre os
+-- dois tipo de árvores binárias: inorder, preorder e postorder.
+
+caminhamentoInOrder:: BArv a -> [a]
+caminhamentoInOrder Leaf = []
+caminhamentoInOrder (Br x Leaf Leaf) = [x]
+caminhamentoInOrder (Br x sub1 sub2) = caminhamentoInOrder sub1 ++ [x] ++ caminhamentoInOrder sub2
+
+
+caminhamentoPreOrder:: BArv a -> [a]
+caminhamentoPreOrder Leaf = []
+caminhamentoPreOrder (Br x Leaf Leaf) = [x]
+caminhamentoPreOrder (Br x sub1 sub2) =   [x] ++caminhamentoPreOrder sub1  ++ caminhamentoPreOrder sub2
+
+caminhamentoPostOrder:: BArv a -> [a]
+caminhamentoPostOrder Leaf = []
+caminhamentoPostOrder (Br x Leaf Leaf) = [x]
+caminhamentoPostOrder (Br x sub1 sub2) = caminhamentoPreOrder sub1 ++ caminhamentoPreOrder sub2 ++ [x]
+    
+
 
 {- Com notação de registro -}
 data AddrDB = Addr {
