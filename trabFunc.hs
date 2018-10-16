@@ -2,6 +2,7 @@ module TrabFunc where
 
 import Data.Char (ord,chr,toLower)
 import Data.List (elemIndex)
+import Data.List.Split(splitOn)
 import Data.Sequence (update,fromList)
 import Data.Foldable (toList)
 --import Data.Text(justifyLeft)
@@ -120,19 +121,18 @@ joinLines (x:xs) = joinLine x ++ "\n" ++ joinLines xs
 
 -- Get a word from the front of a string.
 
---getWord2 :: String -> String
---getWord2 []    = [] 
---getWord2 str =  ((head (splitAt 0 str)))
+getWord2 :: String -> String
+getWord2 []    = [] 
+getWord2 (x:xs) = head(splitOn " " (x:xs))
 
 
-{-
+
 -- In a similar way, the first word of a string can be dropped.
 
-dropWord :: String -> String
-dropWord []    = []
-dropWord (x:xs) 
-  | elem x whitespace   = (x:xs)
-  | otherwise           = dropWord xs
+dropWord2 :: String -> String
+dropWord2 []    = [] 
+dropWord2 (x:xs) = joinLine(tail(splitOn " " (x:xs)))
+
   
 
 dropLine:: Int -> [Mword] -> Line
@@ -143,35 +143,39 @@ dropLine len (x:xs)
     | otherwise = dropLine lenAtualizado xs
         where
             lenAtualizado = len - (length (x) + 1)
+{-
+
+- Getting a line from a list of words.
+
+mGetLine :: Int -> [Mword] -> Line
+mGetLine len []     = []
+mGetLine len (w:ws)
+  | length w <= len     = w : restOfLine  
+  | otherwise           = []
+    where
+    newlen      = len - (length w + 1)
+    restOfLine  = mGetLine newlen ws
             
             
 -}
 
 -- Exercicio 7.31                
 lineLen :: Int
-lineLen = 30
+lineLen = 80
                 
- 
-joinLine3:: Line -> String
-joinLine3 [] = ""
-joinLine3 linha = just linha
-        where
-            just (x:[]) =  x 
-            just (x:xs) = x ++  " "  ++ colocaEspacos nroEspacos ++ colocaEspacos (correcao (x:xs)) ++  colocaEspacos(correcao2(x:xs)) ++ just xs
-            colocaEspacos 0 = ""
-            colocaEspacos 1 = " "
-            colocaEspacos n = " " ++ colocaEspacos (n-1)
-            nroEspacos 
-                | verificaDisponibilidade >0 = verificaDisponibilidade
-                | otherwise =  0                                                                                                   
-            verificaDisponibilidade = ((lineLen) - (length(joinLine linha))) `div` ((length linha) - 1)
-            correcao (x:xs) = if  verificaDisponibilidade `mod` 2 == 1 && (length (x:xs) `mod ` 2 == 1) then 1 else 0
-            correcao2 (x:xs) =  if  verificaDisponibilidade `mod` 2 == 1 && (length (x:xs) `mod ` 2 == 0) then 1 else 0
             
---j:: Line -> String
---j (x:xs)
---   | length (joinLine (x:xs)) < 15 = j 
-            
+justifica:: Line -> String
+justifica (x:xs)
+   	| length (joinLine (x:xs)) < lineLen = aux (x:xs)  (lineLen - ((length (joinLine (x:xs))))) 
+	| otherwise = joinLine (x:xs)
+		where
+			aux (x:[]) _ = x
+			aux (x:xs) nro 
+				|nro < 1 = x ++ " " ++ aux xs 0
+			 	|otherwise = x ++ " " ++ colocaEspacos (nro) ++ aux xs (nro-1)
+			colocaEspacos nro
+				| nro >= (length(x:xs)) = " " ++ colocaEspacos (nro - 2) 
+            			| otherwise = " " 
             
             
 
@@ -180,30 +184,14 @@ joinLine3 linha = just linha
 
 -- Exercicio 7.32
 
---wc:: String -> (Int,Int,Int)
---wc "" = (0,0,0)
---wc x = processamento x (a,b,c)
---        where
---            a=0
---            b=0
---            c=0
---            processamento x (a,b,c)
---                | length x == 0 = (a,b+1,c+1)
---                |  ord (head x)  > 32 && ord (head x) < 127 =  processamento   (tail x) (a+1,b,c)
---                |  ord (head x) == 32 = processamento (tail x) (a,b+1,c)
---                | head x == '\n' = processamento (tail x) (a,b+1,c+1)
-                
---wcFormat::String -> (Int,Int,Int)
---wcFormat x = wc (joinLines(fill x))
 
-
-wc2:: String -> (Int,Int,Int)
-wc2 "" = (0,0,0)
-wc2 str = (a,b,c)
+wc:: String -> (Int,Int,Int)
+wc "" = (0,0,0)
+wc str = (a,b,c)
         where
-            a = (length str) - (b - 1)
+            a = (length str) - (b)
             b = length (splitWords str)
-            c =  length (procuraNovaLinha str) + 1
+            c =  length (procuraNovaLinha str) 
             procuraNovaLinha str = [x | x <- str, x == '\n']
             
 main = do      
@@ -212,7 +200,7 @@ main = do
     putStrLn "Nome do Arquivo de Saída"
     outFile <- getLine
     text <- readFile inFile
-    writeFile outFile ("Numero de caracteres/palavras/linhas: "++show( wc2 text) )           
+    writeFile outFile ("Numero de caracteres/palavras/linhas: "++show(wc text) )           
     
 main2 = do      
     putStrLn "Nome do arquivo de entrada:"
@@ -284,7 +272,7 @@ oldSubExiste str lst = str `elem` lst
 
 linhasParaTexto::[Line] -> String
 linhasParaTexto (x:[]) = joinLine x
-linhasParaTexto (x:xs) = (joinLine3 x) ++ "\n" ++ (linhasParaTexto xs)
+linhasParaTexto (x:xs) = (justifica x) ++ "\n" ++ (linhasParaTexto xs)
 
 joinAndJustifyLine :: Line -> Int -> String
 joinAndJustifyLine line maximumLineLength
@@ -313,6 +301,9 @@ insertBlanks ( character : remainingCharacters ) number
 
 
 
+    
+    
+    
     
     
     
