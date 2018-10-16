@@ -4,6 +4,8 @@ import Data.Char (ord,chr,toLower)
 import Data.List (elemIndex)
 import Data.Sequence (update,fromList)
 import Data.Foldable (toList)
+--import Data.Text(justifyLeft)
+import qualified Data.Text as T
 
 
 -- The `whitespace' characters.
@@ -83,6 +85,9 @@ splitLines ws
 fill :: String -> [Line]
 fill = splitLines . splitWords
 
+justify :: String -> String
+justify = joinLines . fill
+
 
 --Exercicio 7.27
 
@@ -101,7 +106,7 @@ dropLine len (x:xs)
 joinLine:: Line -> String
 joinLine [] = ""
 joinLine (x:[]) = x
-joinLine (x:xs) = x ++ ", " ++ joinLine xs
+joinLine (x:xs) = x ++ " " ++ joinLine xs
 
 --Exercicio 7.29
 
@@ -111,17 +116,16 @@ joinLines (x:[]) = joinLine x
 joinLines (x:xs) = joinLine x ++ "\n" ++ joinLines xs
 
 --Exercicio 7.30
-{-
+
 
 -- Get a word from the front of a string.
 
-getWord :: String -> String
-getWord []    = [] 
-getWord (x:xs) 
-  | elem x whitespace   = []
-  | otherwise           = x : getWord xs
+--getWord2 :: String -> String
+--getWord2 []    = [] 
+--getWord2 str =  ((head (splitAt 0 str)))
 
 
+{-
 -- In a similar way, the first word of a string can be dropped.
 
 dropWord :: String -> String
@@ -145,41 +149,97 @@ dropLine len (x:xs)
 
 -- Exercicio 7.31                
 lineLen :: Int
-lineLen = 15
+lineLen = 30
                 
  
 joinLine3:: Line -> String
 joinLine3 [] = ""
 joinLine3 linha = just linha
         where
-            just (x:[]) = x 
-            just (x:xs) = x ++  "S" ++ colocaEspacos nroEspacos ++ just xs
+            just (x:[]) =  x 
+            just (x:xs) = x ++  " "  ++ colocaEspacos nroEspacos ++ colocaEspacos (correcao (x:xs)) ++  colocaEspacos(correcao2(x:xs)) ++ just xs
             colocaEspacos 0 = ""
-            colocaEspacos 1 = "S"
-            colocaEspacos n = "S" ++ colocaEspacos (n-1)
+            colocaEspacos 1 = " "
+            colocaEspacos n = " " ++ colocaEspacos (n-1)
             nroEspacos 
-                | verificaDisponibilidade >= 0 = verificaDisponibilidade
-                | otherwise =  error "String muito grande para a linha"                                                                                                     
-            verificaDisponibilidade = ((lineLen) - (length(deListaParaString linha))) `div` ((length linha) - 1)
+                | verificaDisponibilidade >0 = verificaDisponibilidade
+                | otherwise =  0                                                                                                   
+            verificaDisponibilidade = ((lineLen) - (length(joinLine linha))) `div` ((length linha) - 1)
+            correcao (x:xs) = if  verificaDisponibilidade `mod` 2 == 1 && (length (x:xs) `mod ` 2 == 1) then 1 else 0
+            correcao2 (x:xs) =  if  verificaDisponibilidade `mod` 2 == 1 && (length (x:xs) `mod ` 2 == 0) then 1 else 0
+            
+--j:: Line -> String
+--j (x:xs)
+--   | length (joinLine (x:xs)) < 15 = j 
+            
+            
+            
+
+            
+
 
 -- Exercicio 7.32
 
-wc:: String -> (Int,Int,Int)
-wc "" = (0,0,0)
-wc x = processamento x (a,b,c)
-        where
-            a=0
-            b=0
-            c=0
-            processamento x (a,b,c)
-                | length x == 0 = (a,b+1,c+1)
-                |  ord (head x)  > 32 && ord (head x) < 127 =  processamento   (tail x) (a+1,b,c)
-                |  ord (head x) == 32 = processamento (tail x) (a,b+1,c)
-                | head x == '\n' = processamento (tail x) (a,b+1,c+1)
+--wc:: String -> (Int,Int,Int)
+--wc "" = (0,0,0)
+--wc x = processamento x (a,b,c)
+--        where
+--            a=0
+--            b=0
+--            c=0
+--            processamento x (a,b,c)
+--                | length x == 0 = (a,b+1,c+1)
+--                |  ord (head x)  > 32 && ord (head x) < 127 =  processamento   (tail x) (a+1,b,c)
+--                |  ord (head x) == 32 = processamento (tail x) (a,b+1,c)
+--                | head x == '\n' = processamento (tail x) (a,b+1,c+1)
                 
-wcFormat::String -> (Int,Int,Int)
-wcFormat x = wc (joinLines(fill x))
+--wcFormat::String -> (Int,Int,Int)
+--wcFormat x = wc (joinLines(fill x))
 
+
+wc2:: String -> (Int,Int,Int)
+wc2 "" = (0,0,0)
+wc2 str = (a,b,c)
+        where
+            a = (length str) - (b - 1)
+            b = length (splitWords str)
+            c =  length (procuraNovaLinha str) + 1
+            procuraNovaLinha str = [x | x <- str, x == '\n']
+            
+main = do      
+    putStrLn "Nome do arquivo de entrada:"
+    inFile <- getLine
+    putStrLn "Nome do Arquivo de Saída"
+    outFile <- getLine
+    text <- readFile inFile
+    writeFile outFile ("Numero de caracteres/palavras/linhas: "++show( wc2 text) )           
+    
+main2 = do      
+    putStrLn "Nome do arquivo de entrada:"
+    inFile <- getLine
+    putStrLn "Nome do Arquivo de Saída"
+    outFile <- getLine
+    text <- readFile inFile
+    writeFile outFile  (linhasParaTexto(fill text)) 
+    
+main3 = do      
+    putStrLn "Nome do arquivo de entrada:"
+    inFile <- getLine
+    putStrLn "Nome do Arquivo de Saída"
+    outFile <- getLine
+    text <- readFile inFile
+    writeFile outFile  (show(T.justifyRight lineLen ' ' (T.pack text)))
+    
+main4 = do      
+    putStrLn "Nome do arquivo de entrada:"
+    inFile <- getLine
+    putStrLn "Nome do Arquivo de Saída"
+    outFile <- getLine
+    text <- readFile inFile
+    writeFile outFile  (show(isPalin2 text))   
+    
+            
+            
 --Exercicio 7.33
 
 isPalin:: String -> Bool
@@ -209,28 +269,47 @@ stringParaLowCase str = map toLower str
 --Exercicio 7.34
 subst:: String -> String -> String -> String
 subst oldSub newSub str 
-     | oldSubExiste oldSub (splitWords str) = substitui  newSub (splitWords str) (elemIndex oldSub (splitWords str))
+     | oldSubExiste oldSub (splitWords str) = troca newSub (splitWords str) (elemIndex oldSub (splitWords str))
      | otherwise = str
                 where 
-                   substitui newSub lstStr pos = 
+                   troca newSub lstStr pos = 
                        case pos of 
-                            Just n ->  deListaParaString(toList(update n newSub (fromList lstStr)))
+                            Just n ->  joinLine(toList(update n newSub (fromList lstStr)))
 
                    
-deListaParaString:: [String] -> String
-deListaParaString [] = ""
-deListaParaString (x:[]) = x
-deListaParaString (x:xs) = x ++ " " ++ deListaParaString xs
-   
 
+  
 oldSubExiste:: String -> [Mword] -> Bool
 oldSubExiste str lst = str `elem` lst 
 
+linhasParaTexto::[Line] -> String
+linhasParaTexto (x:[]) = joinLine x
+linhasParaTexto (x:xs) = (joinLine3 x) ++ "\n" ++ (linhasParaTexto xs)
+
+joinAndJustifyLine :: Line -> Int -> String
+joinAndJustifyLine line maximumLineLength
+ |  length line == 1  = line !! 1 -- Only one word.
+ |  otherwise         = justify lineAsString
+ 
+ where
+ 
+ lineAsString :: String
+ lineAsString =  joinLine line
 
 
-
-
-
+    
+justif :: String -> String
+justif "" = ""
+justif string
+  |  length string < lineLen  = justif (insertBlanks string (lineLen - length string))
+  |  otherwise = string
+  
+insertBlanks :: String -> Int -> String
+insertBlanks [] _ = []
+insertBlanks ( character : remainingCharacters ) number
+  |  number < 1        =        character : insertBlanks remainingCharacters  number
+  |  character == ' '  =  ' ' : character : insertBlanks remainingCharacters (number - 1)
+  |  otherwise         =        character : insertBlanks remainingCharacters  number
 
 
 
