@@ -78,7 +78,9 @@ Enum.
 -}
 
 pred1::MNat -> MNat
+pred1 Z = Z
 pred1 (Suc x) = x
+
     
 
 instance Num MNat where
@@ -88,8 +90,7 @@ instance Num MNat where
 
     -- (-)
     x - Z = x
-    Z - y = Z
-    x - (Suc y) = Suc (x) - (pred1 y)
+    x - (Suc y) = pred1(x - y)
 
 
 instance Ord MNat where
@@ -155,14 +156,59 @@ Listas também poder definidas com tipos recursivos.
 data List a = Nil | Cons a (List a)
 
 l01 = Cons 1 (Cons 2 (Cons 3 Nil))
+l02 = Cons "Hello" (Cons "World" (Cons "!" Nil))
+
+
+
+
+
+
 
 {-
  Definir funções recursivas de conversão de (List a) para [a] e vice_versa.
 -}
+mlTohl:: List a -> [a]
+mlTohl Nil = []
+mlTohl (Cons x xs) = x:(mlTohl xs)
+
+
+hlToml:: [a] -> List a
+hlToml [] = Nil
+hlToml (x:xs) = Cons x (hlToml xs)
+
+instance Show a => Show (List a) where
+    show Nil = "Nil"
+    show (Cons x Nil) = "Cons " ++ show x ++ " Nil"
+    show (Cons x xs) = "Cons " ++ show x ++ " (" ++ show xs ++ ")"
 
 {-
    Exercícios: Instanciar List nas classes Show, Eq, Ord, Enum.
 -}
+{-
+    
+-}
+
+
+
+instance Eq a => Eq (List a) where
+    --implementacao (==)
+    Nil == Nil = True
+    (Cons x xs) == (Cons y ys) =  (x==y) && (xs==ys)  
+    _==_ = False       
+
+    --implementacao (/=)
+    Nil /= Nil = False
+    (Cons x xs) /= (Cons y ys) =  (x/=y) || (xs/=ys)  
+    _/=_ = True                         
+
+
+--instance Ord a => Ord (List a) where
+    -- implementacao (<)
+--    Nil < Nil = False
+--    Cons (x xs) < Nil = False
+--    Nil < Cons (x xs) = True
+                            
+
 
 {-
   Exercícios: Definir as funções usuais de lista sobre List:
@@ -197,15 +243,89 @@ expex = Sub (Mult (Add (L 3) (L 4)) (L 5)) (L 16)
 {-
  Instanciar Expr na classe Show
 -}
- 
+
+instance Show Expr where
+	show (L k) = show k
+	show (Add e1 e2) = "(" ++ show e1 ++ "+" ++ show e2 ++ ")"
+	show (Sub e1 e2) = "(" ++ show e1 ++ "-" ++ show e2 ++ ")"
+	show (Mult e1 e2) = "(" ++ show e1 ++ "*" ++ show e2 ++ ")"
+
 {- 
   Definir uma função recursiva eval::Exp -> Int 
 -}
 
+eval:: Expr -> Int
+eval (L k) = k
+eval (Add e1 e2) = (eval e1) + (eval e2)
+eval (Sub e1 e2) =  (eval e1) - (eval e2)
+eval (Mult e1 e2) = (eval e1) * (eval e2)
+
+
+
 {-
 Estender  o tipo recursivo VExpr de forma que seja possível incluir variáveis nas expressões. 
 -}
- 
+
+data VExpr = V String| C Int | VSub VExpr VExpr | 
+            VMult VExpr VExpr |
+            VAdd VExpr VExpr 
+
+
+vexpex = VMult (V "x") (VMult (VAdd (V "x") (V "y")) (C 15 )) 
+
+instance Show VExpr where
+	show (C k) = show k
+ 	show (V k) = k
+	show (VAdd e1 e2) = "(" ++ show e1 ++ "+" ++ show e2 ++ ")"
+	show (VSub e1 e2) = "(" ++ show e1 ++ "-" ++ show e2 ++ ")"
+	show (VMult e1 e2) = "(" ++ show e1 ++ "*" ++ show e2 ++ ")"
+
+
+type Store = String -> Int
+
+stoExemplo::Store
+stoExemplo "x" = 10
+stoExemplo "y" = -5
+stoExemplo "z" = 2
+stoExemplo _ = 0
+
+vEval:: VExpr -> Store -> Int
+vEval (C k) store = k
+vEval (V k) store = store k
+vEval (VSub e1 e2) store = (vEval e1 store) - (vEval e2 store)
+vEval (VAdd e1 e2) store = (vEval e1 store) + (vEval e2 store)
+vEval (VMult e1 e2) store = (vEval e1 store) * (vEval e2 store)
+
+
+
+data NExp = K Int | NExp :+: NExp |
+		NExp :-: NExp | NExp :*: NExp deriving (Show, Eq, Ord)
+
+nEval:: NExp -> Int
+nEval (K n) = n
+nEval (e1 :+: e2) =  (nEval e1) + (nEval e2) 
+nEval (e1 :-: e2) =  (nEval e1) - (nEval e2)
+nEval (e1 :*: e2) =  (nEval e1) * (nEval e2)
+
+
+--  (3+4)*5 - 16
+newExpEx = (((K 3) :+: (K 4)) :*: (K 5)) :-: (K 16)
+
+
+data VNExp = X Int | A String | VNExp :++: VNExp |
+		VNExp :--: VNExp | VNExp :**: VNExp deriving (Show, Eq, Ord)
+
+vnEval:: VNExp -> Store -> Int
+vnEval (X k) store = k
+vnEval (A k) store = store k
+vnEval (e1 :--: e2) store = (vnEval e1 store) - (vnEval e2 store)
+vnEval (e1 :++: e2) store = (vnEval e1 store) + (vnEval e2 store)
+vnEval (e1 :**: e2) store = (vnEval e1 store) * (vnEval e2 store)
+
+--  (3+4)*5 - 16
+newExpEx2 = (((A "x") :++: (X 4)) :**: (X 5)) :--: (X 16)
+
+
 {-
  Definir agora a nova função de avaliação sobre VExpr. Qual o novo parâmetro (tipo) que é necessário?
 -}
@@ -215,20 +335,59 @@ Estender  o tipo recursivo VExpr de forma que seja possível incluir variáveis 
   Árvores Binárias (Recursivamente)
 -}
 data BArv a = Leaf  | Br a (BArv a) (BArv a)
-
+    deriving (Show,Eq,Ord)
 data BTree a = Node a| Fork a (BTree a) (BTree a) | Empty
-
+    deriving (Show,Eq,Ord)
 tree01= Br 1 (Br 2 Leaf Leaf) (Br 3 Leaf Leaf) 
 tree02= Fork 1 (Node 2)  (Node 3)
+tree04 = Br 1 ( Br 2 (Br 4 Leaf Leaf) Leaf) (Br 3 Leaf Leaf)
 
-{-
 
-Exercícios
-- Instanciar BArv, BTree nas classes Show, Eq, Ord.
-- Escrever funções de conversão entre BArv e BTree.
-- Escrever as funções de caminhamento usuais sobre os
- dois tipo de árvores binárias: inorder, preorder e postorder.
--}
+
+--Exercícios
+-- Instanciar BArv, BTree nas classes Show, Eq, Ord.
+
+--instance Show a => Show (BTree a)  where
+--    show Empty = " "
+--    show (Node a) = show a
+    --show (Fork a (ar1) (ar2)) = show (a ++ ar1)
+
+
+
+
+--Escrever funções de conversão entre BArv e BTree.
+
+convert1:: BArv a -> BTree a
+convert1 Leaf = Empty
+convert1 (Br x Leaf Leaf) = Node x
+convert1 (Br x arv1 arv2) = Fork x (convert1 arv1) (convert1 arv2)
+
+convert2::BTree a -> BArv a
+convert2 Empty = Leaf
+-- FAZER
+-- FAZER
+
+
+--Escrever as funções de caminhamento usuais sobre os
+-- dois tipo de árvores binárias: inorder, preorder e postorder.
+
+caminhamentoInOrder:: BArv a -> [a]
+caminhamentoInOrder Leaf = []
+caminhamentoInOrder (Br x Leaf Leaf) = [x]
+caminhamentoInOrder (Br x sub1 sub2) = caminhamentoInOrder sub1 ++ [x] ++ caminhamentoInOrder sub2
+
+
+caminhamentoPreOrder:: BArv a -> [a]
+caminhamentoPreOrder Leaf = []
+caminhamentoPreOrder (Br x Leaf Leaf) = [x]
+caminhamentoPreOrder (Br x sub1 sub2) =   [x] ++caminhamentoPreOrder sub1  ++ caminhamentoPreOrder sub2
+
+caminhamentoPostOrder:: BArv a -> [a]
+caminhamentoPostOrder Leaf = []
+caminhamentoPostOrder (Br x Leaf Leaf) = [x]
+caminhamentoPostOrder (Br x sub1 sub2) = caminhamentoPreOrder sub1 ++ caminhamentoPreOrder sub2 ++ [x]
+    
+
 
 {- Com notação de registro -}
 data AddrDB = Addr {
