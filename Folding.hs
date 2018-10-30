@@ -68,4 +68,81 @@ revertList xs = foldr radd [] xs
             --radd = (\x xs -> x ++ xs)
 -- let radd x xs = xs ++ [x] in foldr radd [] [1,2,3]
 
---last':: [a] -> a
+mlast:: [a] -> a
+mlast [x] = x
+mlast (x:y:ys) = foldr1 (\x y -> y) (y:ys)
+
+mfoldr1' f [x] = []
+mfoldr1' f (x:y:ys) = x `f` (mfoldr1' f (y:ys))
+
+minit:: [x] -> [x]
+minit xs =   mfoldr1' (:) xs
+
+
+
+--4 versoes com recursao primitiva
+
+mfoldl:: (a -> a -> a) -> a -> [a] -> a
+mfoldl fun e [] = e
+mfoldl fun e (x:xs) = mfoldl fun (e `fun` x) xs 
+
+--FAZER
+
+mfoldl1:: (a -> a -> a) -> [a] -> a
+mfoldl1 fun [x] = x
+mfoldl1 fun (x:y:ys) = x `fun` (mfoldl1 fun (y:ys))
+
+-- ^ ^
+-- | |
+
+mfoldr f e [] = e
+mfoldr f e (x:xs) =  x `f` (mfoldr f e xs) 
+
+mfoldr1 f [x] = x
+mfoldr1 f (x:y:ys) = x `f` (mfoldr1 f (y:ys))
+
+
+
+
+--print foldr
+psumr = foldr
+            (\x y -> concat ["(",x,"+",y,")"])
+            "0" (map show [1..5])
+
+
+--print foldl
+psuml = foldl (\x y -> concat ["(",x,"+",y,")" ])
+               "0" (map show [1..5]) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
