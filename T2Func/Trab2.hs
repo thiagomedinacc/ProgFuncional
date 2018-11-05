@@ -10,7 +10,7 @@ data ExprLogica = B Bool | And ExprLogica ExprLogica | Or ExprLogica ExprLogica 
             
             
 data Comando = Atrib String Expr | Sequencia Comando Comando | Escolha ExprLogica Comando Comando | 
-                Neutro | While ExprLogica Comando | Laco2 Comando ExprLogica deriving (Show)
+                Neutro | While ExprLogica Comando | DoWhile Comando ExprLogica deriving (Show)
                 
 
 evalExpr:: Expr -> Store -> Integer
@@ -37,13 +37,13 @@ evalComando (Escolha expLogica com1 com2) sto
     | evalExprLogica (expLogica) sto == True = evalComando com1 sto
     | otherwise = evalComando com2 sto
 evalComando Neutro sto = sto
--- Falta arrumar os laços
 evalComando (While expLogica com) sto = loopWhile expLogica com sto
-    where
-        loopWhile:: ExprLogica -> Comando -> Store -> Store
-        loopWhile expLogica com sto
-            |evalExprLogica expLogica sto == True = loopWhile expLogica com (evalComando com sto)
-            | otherwise = sto
+evalComando (DoWhile com expLogica) sto = loopWhile expLogica com (evalComando com sto)
+
+loopWhile:: ExprLogica -> Comando -> Store -> Store
+loopWhile expLogica com sto
+	|evalExprLogica expLogica sto == True = loopWhile expLogica com (evalComando com sto)
+	| otherwise = sto
             
             
  
