@@ -57,6 +57,9 @@ insE x (y:ys) = if x <= y then x:y:ys else y:(insE x ys)
 sumList:: [Integer] -> Integer
 sumList xs = foldr (+) 0 xs
 
+rev:: [Integer] -> [Integer]
+rev lst = foldr (\x y -> y ++ [x]) [] lst
+
 
 --revertList:: [a] -> [a]
 --revertList xs = foldr (\x y -> y ++ [x]) [] xs
@@ -72,36 +75,27 @@ mlast:: [a] -> a
 mlast [x] = x
 mlast (x:y:ys) = foldr1 (\x y -> y) (y:ys)
 
-mfoldr1' f [x] = []
-mfoldr1' f (x:y:ys) = x `f` (mfoldr1' f (y:ys))
-
 minit:: [x] -> [x]
 minit xs =   mfoldr1' (:) xs
 
-
-
 --4 versoes com recursao primitiva
 
-mfoldl:: (a -> a -> a) -> a -> [a] -> a
-mfoldl fun e [] = e
-mfoldl fun e (x:xs) = mfoldl fun (e `fun` x) xs 
-
---FAZER
-
-mfoldl1:: (a -> a -> a) -> [a] -> a
-mfoldl1 fun [x] = x
-mfoldl1 fun (x:y:ys) = x `fun` (mfoldl1 fun (y:ys))
-
--- ^ ^
--- | |
-
-mfoldr f e [] = e
-mfoldr f e (x:xs) =  x `f` (mfoldr f e xs) 
-
-mfoldr1 f [x] = x
-mfoldr1 f (x:y:ys) = x `f` (mfoldr1 f (y:ys))
 
 
+mfoldrt:: (a->a->a) -> a -> [a] -> a
+mfoldrt f e (x:xs) = f x (foldr f e xs)
+
+mfoldrt1:: (a->a->a) -> [a] -> a
+mfoldrt1 f [x] = x
+mfoldrt1 f (x:xs) = f x (mfoldrt1 f xs)
+
+mfoldlt:: (a->a->a) -> a-> [a] -> a
+mfoldl f e [] = e
+mfoldlt f e (x:xs) = mfoldlt f (f x e) xs
+
+mfoldlt1:: (a->a->a) -> [a] -> a
+mfoldlt1 f [x] = x
+mfoldlt1 f (x:y:ys) =   f (f x y) (mfoldlt1 f ys)
 
 
 --print foldr
@@ -113,33 +107,6 @@ psumr = foldr
 --print foldl
 psuml = foldl (\x y -> concat ["(",x,"+",y,")" ])
                "0" (map show [1..5]) 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
