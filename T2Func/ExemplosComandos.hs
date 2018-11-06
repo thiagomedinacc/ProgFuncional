@@ -1,6 +1,6 @@
 module ExemplosComandos where
 
-import Trab2
+import Interpretador
 import Store
 
 -- Primeiro comando: Fatorial de um numero:

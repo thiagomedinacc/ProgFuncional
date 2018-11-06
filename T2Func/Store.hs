@@ -1,14 +1,3 @@
--------------------------------------------------------------------------
---  
---     Store.hs
---  
---         An abstract data type of stores of integers, implemented as
---         a list of pairs of variables and values.         
---                                  
---         (c) Addison-Wesley, 1996-2011.                   
---  
--------------------------------------------------------------------------
-
 module Store 
    ( Store, 
      initial,     -- Store
